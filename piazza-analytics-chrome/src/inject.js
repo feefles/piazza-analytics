@@ -1,9 +1,9 @@
 var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === "complete") {
         clearInterval(readyStateCheckInterval);
-        $(window).hashchange(updateName);
+        $(window).hashchange(updateNames);
 
-        updateName()
+        updateNames()
        
     }
 }, 50);

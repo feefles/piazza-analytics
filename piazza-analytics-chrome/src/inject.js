@@ -1,21 +1,38 @@
-var readyStateCheckInterval = setInterval(function() {
-    if (document.readyState === "complete") {
-        clearInterval(readyStateCheckInterval);
-        $(window).hashchange(updateNames);
+var lastPiazzaPost = -1;
 
-        updateNames()
+$(document).ready(function() {
+    $(window).unload(updateNames);
+    // wait until a dom thing exists
+    updateNames();
+});
 
-    }
-}, 50);
+new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (!mutation.addedNodes) {
+            return;
+        }
+        updateNames();
+    });
+}).observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: false,
+    characterData: false
+});
 
 function updateNames() {
-    var server_ip = "https://cdn.moe/piazza/"
+    var proxyUrl = "https://cdn.moe/piazza/";
 
     // this should be well formed
-    var post_id = window.location.search.split("=")[1]
+    var postId = window.location.search.split("=")[1];
+    if (postId === lastPiazzaPost) {
+        return;
+    }
+    lastPiazzaPost = postId;
+
     $.ajax({
         type:'GET',
-        url: server_ip + "tag_good/" + post_id,
+        url: proxyUrl + "tag_good/" + postId,
         dataType: 'json',
     }).done(function(data) {
         div = "<div >" + data["tag_good"].join() + "</div>";

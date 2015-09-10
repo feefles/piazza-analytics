@@ -77,11 +77,10 @@ def get_person(post_id):
     if 'tag_good' in post:
         for person in post['tag_good']:
             d['tag_good'].append(person['name'])
-    if 'tag_endorse' in post:
-        for person in post['tag_endorse']:
-            d['tag_endorse'].append(person['name'])
+    if 'tag_endorse' in post['children'][0]:
+        for person in post['children'][0]['tag_endorse']:
+            d['tag_endorse'].append(person['name'] + ",")
     return json.dumps(d)
-
 
 if __name__ == "__main__":
     # port = int(os.environ.get("PORT", 5000))

@@ -13,10 +13,12 @@
             "https://piazza.com/*"
         ],
         "css": [
-            
+
         ],
         "js": [
-            "js/jquery.min.js", "src/inject.js"
+            "js/jquery.min.js",
+            "js/jquery.ba-hashchange.min.js",
+            "src/inject.js"
         ]
     }]
 }

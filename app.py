@@ -71,7 +71,7 @@ def get_person(post_id):
     post = cis121.get_post(post_id)
         # print post
     d = {
-        "tag_good": [], 
+        "tag_good": [],
         "tag_endorse": []
     }
     if 'tag_good' in post:
@@ -79,7 +79,7 @@ def get_person(post_id):
             d['tag_good'].append(person['name'])
     if 'tag_endorse' in post['children'][0]:
         for person in post['children'][0]['tag_endorse']:
-            d['tag_endorse'].append(person['name'] + ",")
+            d['tag_endorse'].append(person['name'])
     return json.dumps(d)
 
 if __name__ == "__main__":

@@ -1,0 +1,22 @@
+{
+    "name": "piazza-analytics",
+    "version": "0.0.1",
+    "manifest_version": 2,
+    "description": "Use this extension to for enhanced Piazza usage",
+    "default_locale": "en",
+    "permissions": [
+        "https://piazza.com/*",
+        "windows"
+            ],
+    "content_scripts": [{
+        "matches": [
+            "https://piazza.com/*"
+        ],
+        "css": [
+            
+        ],
+        "js": [
+            "js/jquery.min.js", "src/inject.js"
+        ]
+    }]
+}

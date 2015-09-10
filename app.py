@@ -1,7 +1,7 @@
 from flask import Flask
 import config
 from piazza_api import Piazza
-import json
+import json, os
 
 app = Flask(__name__)
 
@@ -83,6 +83,6 @@ def get_person(post_id):
     return json.dumps(d)
 
 if __name__ == "__main__":
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host='0.0.0.0', port=port)
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 80))
+    app.run(host='0.0.0.0', port=port)
+    # app.run(debug=True)

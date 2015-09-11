@@ -1,9 +1,9 @@
 var lastPiazzaPost = -1;
 
 $(document).ready(function() {
-    $(window).unload(updateNames);
+    $(window).unload(injectNames);
     // wait until a dom thing exists
-    updateNames();
+    injectNames();
 });
 
 new MutationObserver(function(mutations) {
@@ -11,7 +11,7 @@ new MutationObserver(function(mutations) {
         if (!mutation.addedNodes) {
             return;
         }
-        updateNames();
+        injectNames();
     });
 }).observe(document.body, {
     childList: true,
@@ -20,11 +20,17 @@ new MutationObserver(function(mutations) {
     characterData: false
 });
 
-function updateNames() {
-    var proxyUrl = "https://cdn.moe/piazza/";
+function makeDomNodeString(nameList) {
+    return '<span class="post_actions_number">' +
+        nameList.join(', ') +
+        '</span>';
+}
+
+function injectNames() {
+    var proxyUrl = 'https://cdn.moe/piazza/';
 
     // this should be well formed
-    var postId = window.location.search.split("=")[1];
+    var postId = window.location.search.split('=')[1];
     if (postId === lastPiazzaPost) {
         return;
     }
@@ -32,12 +38,13 @@ function updateNames() {
 
     $.ajax({
         type:'GET',
-        url: proxyUrl + "tag_good/" + postId,
+        url: proxyUrl + 'tag_good/' + postId,
         dataType: 'json',
     }).done(function(data) {
-        div = "<div >" + data["tag_good"].join() + "</div>";
-        $('.do_good_note').after(div) ;
-        div = "<div>" + data["tag_endorse"].join() + "</div>";
-        $('.do_good_answer').after(div);
+        $('.post_actions_number.good_note').
+            after(makeDomNodeString(data['tag_good']));
+
+        $('.post_actions_number.good_answer').
+            after(makeDomNodeString(data['tag_endorse']));
     });
 }

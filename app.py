@@ -61,12 +61,12 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 
-@app.route('/tag_good/<int:post_id>')
+@app.route('/tag_good/<class_id>/<int:post_id>')
 @crossdomain(origin='*')
-def get_person(post_id):
+def get_person(class_id, post_id):
     p = Piazza()
     p.user_login(email=username, password=password)
-    cis121 = p.network("idj5lp6gixc6xn")
+    cis121 = p.network(class_id)
 
     post = cis121.get_post(post_id)
         # print post
@@ -83,6 +83,5 @@ def get_person(post_id):
     return json.dumps(d)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 80))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-    # app.run(debug=True)

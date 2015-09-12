@@ -28,17 +28,18 @@ function makeDomNodeString(nameList) {
 
 function injectNames() {
     var proxyUrl = 'https://cdn.moe/piazza/';
-
     // this should be well formed
     var postId = window.location.search.split('=')[1];
     if (postId === lastPiazzaPost) {
         return;
     }
     lastPiazzaPost = postId;
+    classId = window.location.pathname.split('/class/')[1];
 
     $.ajax({
         type:'GET',
-        url: proxyUrl + 'tag_good/' + postId,
+        url: proxyUrl + 'tag_good/'+ classId + "/" + postId,
+    
         dataType: 'json',
     }).done(function(data) {
         $('.post_actions_number.good_note').

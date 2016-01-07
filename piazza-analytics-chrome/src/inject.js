@@ -27,7 +27,7 @@ function makeDomNodeString(nameList) {
 }
 
 function injectNames() {
-    var proxyUrl = 'https://cdn.moe/piazza/';
+    var proxyUrl = 'https://reverse.cdn.moe/piazza/';
     // var proxyUrl = 'http://159.203.71.54/';
     // this should be well formed
     var postId = window.location.search.split('=')[1];

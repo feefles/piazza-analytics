@@ -62,7 +62,7 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 
 @app.route('/tag_good/<class_id>/<int:post_id>')
-@crossdomain(origin='*')
+@crossdomain(origin='https://reverse.cdn.moe/piazza/')
 def get_person(class_id, post_id):
     p = Piazza()
     p.user_login(email=username, password=password)

@@ -27,8 +27,9 @@ function makeDomNodeString(nameList) {
 }
 
 function injectNames() {
-    var proxyUrl = 'https://reverse.cdn.moe/piazza/';
+    // var proxyUrl = 'https://reverse.cdn.moe/piazza/';
     // var proxyUrl = 'http://159.203.71.54/';
+    var proxyUrl = "https://localhost:5000/";
     // this should be well formed
     var postId = window.location.search.split('=')[1];
     if (postId === lastPiazzaPost) {
@@ -36,17 +37,22 @@ function injectNames() {
     }
     lastPiazzaPost = postId;
     classId = window.location.pathname.split('/class/')[1];
-
+    console.log('injecting');
     $.ajax({
         type:'GET',
         url: proxyUrl + 'tag_good/'+ classId + "/" + postId,
     
         dataType: 'json',
     }).done(function(data) {
+        console.log(data);
         $('.post_actions_number.good_note').
             after(makeDomNodeString(data['tag_good']));
 
-        $('.post_actions_number.good_answer').
-            after(makeDomNodeString(data['tag_endorse']));
+        $('#member_answer .post_actions_number.good_answer').
+            after(makeDomNodeString(data['tag_endorse_student']));
+
+        $('#instructor_answer .post_actions_number.good_answer').
+            after(makeDomNodeString(data['tag_endorse_instructor']));
+
     });
 }

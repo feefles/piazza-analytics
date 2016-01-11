@@ -27,9 +27,8 @@ function makeDomNodeString(nameList) {
 }
 
 function injectNames() {
-    // var proxyUrl = 'https://reverse.cdn.moe/piazza/';
+    var proxyUrl = 'https://reverse.cdn.moe/piazza/';
     // var proxyUrl = 'http://159.203.71.54/';
-    var proxyUrl = "https://localhost:5000/";
     // this should be well formed
     var postId = window.location.search.split('=')[1];
     if (postId === lastPiazzaPost) {
@@ -44,7 +43,6 @@ function injectNames() {
     
         dataType: 'json',
     }).done(function(data) {
-        console.log(data);
         $('.post_actions_number.good_note').
             after(makeDomNodeString(data['tag_good']));
 

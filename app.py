@@ -87,11 +87,8 @@ def get_person(class_id, post_id):
             else: # this is a student answer
                 for person in child['tag_endorse']:
                     d['tag_endorse_student'].append(person['name'])
-    # if 'tag_endorse' in post['children'][0]:
-    #     for person in post['children'][0]['tag_endorse']:
-    #         d['tag_endorse'].append(person['name'])
     return json.dumps(d)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 80))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, threaded=True)

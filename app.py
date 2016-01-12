@@ -79,12 +79,12 @@ def get_person(class_id, post_id):
         for person in post['tag_good']:
             d['tag_good'].append(person['name'])
     for child in post['children']:
-        if 'tag_endorse' in child:
+        if 'tag_endorse' in child and 'type' in child:
             # this is an instructor post
-            if child['history'][0]['anon'] == 'no':
+            if child['type'] == 'i_answer':
                 for person in child['tag_endorse']:
                     d['tag_endorse_instructor'].append(person['name'])
-            else: # this is a student answer
+            elif child['type'] == 's_answer' : # this is a student answer
                 for person in child['tag_endorse']:
                     d['tag_endorse_student'].append(person['name'])
     return json.dumps(d)

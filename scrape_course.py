@@ -1,3 +1,7 @@
+import config
+from piazza_api import Piazza
+
+
 class Post(object):
     """
     A Post class to encapsulate the post data
@@ -23,3 +27,24 @@ class Post(object):
             if child['type'] == 's_answer':
                 self.post_student_answer = child['history'][-1]['content']
 
+    def output(self, file):
+        pass
+        # we might want to print results out to file
+
+
+def main():
+    username = config.username
+    password = config.password
+    class_id = 'idj5lp6gixc6xn'
+    p = Piazza()
+    p.user_login(email=username, password=password)
+    cis121 = p.network(class_id)
+
+    #limit to 10 for now
+    posts = cis121.iter_all_posts(limit=10)
+    post_obj = [Post(post) for post in posts]
+    print post_obj
+
+
+if __name__ == "__main__":
+    main()

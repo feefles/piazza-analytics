@@ -6,22 +6,16 @@ from scrape_course import Post
 
 
 class TestPost(unittest.TestCase):
-    # def setUp(self):
-    #     username = config.username
-    #     password = config.password
-    #     class_id = 'idj5lp6gixc6xn'
-    #     p = Piazza()
-    #     p.user_login(email=username, password=password)
-    #     self.cis121 = p.network(class_id)
-    #
-
-    def test_simple_post(self):
+    def setUp(self):
         username = config.username
         password = config.password
         class_id = 'idj5lp6gixc6xn'
         p = Piazza()
         p.user_login(email=username, password=password)
         self.cis121 = p.network(class_id)
+    #
+
+    def test_simple_post(self):
         post_json = self.cis121.get_post(1873)
         p = Post(post_json)
         self.assertEqual(p.subject, u'Neighbors function for our own digraph class in milestone 0')

@@ -1,22 +1,21 @@
-from flask import Flask
-import config
-from piazza_api import Piazza
-import json, os
+import datetime
+import flask
+import functools
+import json
+import os
+import piazza_api
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
+
+import config
 
 username = config.username
 password = config.password
 
+
 @app.route('/')
 def index():
-    return "hello world"
-
-
-
-from datetime import timedelta
-from flask import make_response, request, current_app
-from functools import update_wrapper
+    return '17'
 
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -28,23 +27,23 @@ def crossdomain(origin=None, methods=None, headers=None,
         headers = ', '.join(x.upper() for x in headers)
     if not isinstance(origin, basestring):
         origin = ', '.join(origin)
-    if isinstance(max_age, timedelta):
+    if isinstance(max_age, datetime.timedelta):
         max_age = max_age.total_seconds()
 
     def get_methods():
         if methods is not None:
             return methods
 
-        options_resp = current_app.make_default_options_response()
+        options_resp = flask.current_app.make_default_options_response()
         return options_resp.headers['allow']
 
     def decorator(f):
         def wrapped_function(*args, **kwargs):
-            if automatic_options and request.method == 'OPTIONS':
-                resp = current_app.make_default_options_response()
+            if automatic_options and flask.request.method == 'OPTIONS':
+                resp = flask.current_app.make_default_options_response()
             else:
-                resp = make_response(f(*args, **kwargs))
-            if not attach_to_all and request.method != 'OPTIONS':
+                resp = flask.make_response(f(*args, **kwargs))
+            if not attach_to_all and flask.request.method != 'OPTIONS':
                 return resp
 
             h = resp.headers
@@ -57,23 +56,23 @@ def crossdomain(origin=None, methods=None, headers=None,
             return resp
 
         f.provide_automatic_options = False
-        return update_wrapper(wrapped_function, f)
+        return functools.update_wrapper(wrapped_function, f)
     return decorator
 
 
 @app.route('/tag_good/<class_id>/<int:post_id>')
 @crossdomain(origin='*')
 def get_person(class_id, post_id):
-    p = Piazza()
+    p = piazza_api.Piazza()
     p.user_login(email=username, password=password)
     cis121 = p.network(class_id)
 
     post = cis121.get_post(post_id)
         # print post
     d = {
-        "tag_good": [],
-        "tag_endorse_student": [], 
-        "tag_endorse_instructor": []
+        'tag_good': [],
+        'tag_endorse_student': [],
+        'tag_endorse_instructor': []
     }
     if 'tag_good' in post:
         for person in post['tag_good']:
@@ -89,6 +88,7 @@ def get_person(class_id, post_id):
                     d['tag_endorse_student'].append(person['name'])
     return json.dumps(d)
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 80))
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 80))
     app.run(host='0.0.0.0', port=port, threaded=True)

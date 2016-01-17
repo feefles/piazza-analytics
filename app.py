@@ -1,22 +1,22 @@
-from flask import Flask
+import datetime
+import flask
+import functools
+import os
+import piazza_api
+import subprocess
+import StringIO
+
+app = flask.Flask(__name__)
+
 import config
-from piazza_api import Piazza
-import json, os
 
-app = Flask(__name__)
+USERNAME = config.username
+PASSWORD = config.password
 
-username = config.username
-password = config.password
 
 @app.route('/')
 def index():
-    return "hello world"
-
-
-
-from datetime import timedelta
-from flask import make_response, request, current_app
-from functools import update_wrapper
+    return '17'
 
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -28,23 +28,23 @@ def crossdomain(origin=None, methods=None, headers=None,
         headers = ', '.join(x.upper() for x in headers)
     if not isinstance(origin, basestring):
         origin = ', '.join(origin)
-    if isinstance(max_age, timedelta):
+    if isinstance(max_age, datetime.timedelta):
         max_age = max_age.total_seconds()
 
     def get_methods():
         if methods is not None:
             return methods
 
-        options_resp = current_app.make_default_options_response()
+        options_resp = flask.current_app.make_default_options_response()
         return options_resp.headers['allow']
 
     def decorator(f):
         def wrapped_function(*args, **kwargs):
-            if automatic_options and request.method == 'OPTIONS':
-                resp = current_app.make_default_options_response()
+            if automatic_options and flask.request.method == 'OPTIONS':
+                resp = flask.current_app.make_default_options_response()
             else:
-                resp = make_response(f(*args, **kwargs))
-            if not attach_to_all and request.method != 'OPTIONS':
+                resp = flask.make_response(f(*args, **kwargs))
+            if not attach_to_all and flask.request.method != 'OPTIONS':
                 return resp
 
             h = resp.headers
@@ -57,23 +57,23 @@ def crossdomain(origin=None, methods=None, headers=None,
             return resp
 
         f.provide_automatic_options = False
-        return update_wrapper(wrapped_function, f)
+        return functools.update_wrapper(wrapped_function, f)
     return decorator
 
 
 @app.route('/tag_good/<class_id>/<int:post_id>')
 @crossdomain(origin='*')
 def get_person(class_id, post_id):
-    p = Piazza()
-    p.user_login(email=username, password=password)
+    p = piazza_api.Piazza()
+    p.user_login(email=USERNAME, password=PASSWORD)
     cis121 = p.network(class_id)
 
     post = cis121.get_post(post_id)
         # print post
     d = {
-        "tag_good": [],
-        "tag_endorse_student": [], 
-        "tag_endorse_instructor": []
+        'tag_good': [],
+        'tag_endorse_student': [],
+        'tag_endorse_instructor': []
     }
     if 'tag_good' in post:
         for person in post['tag_good']:
@@ -87,8 +87,70 @@ def get_person(class_id, post_id):
             elif child['type'] == 's_answer' : # this is a student answer
                 for person in child['tag_endorse']:
                     d['tag_endorse_student'].append(person['name'])
-    return json.dumps(d)
+    return flask.json.dumps(d)
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 80))
-    app.run(host='0.0.0.0', port=port, threaded=True)
+
+###############################################################################
+# TODO: This slack stuff shouldn't be in the same app
+###############################################################################
+
+def _init_piazza():
+    p = piazza_api.Piazza()
+    p.user_login(email=USERNAME, password=PASSWORD)
+    return p
+
+
+# FIXME: This Piazza object might need to be refreshed if the cookies expire
+PIAZZA = _init_piazza()
+
+EXPECTED_SLACK_TOKEN = config.slack_token
+
+
+def slack_POST(f):
+    @functools.wraps(f)
+    def decorator(*args, **kwargs):
+        if EXPECTED_SLACK_TOKEN == flask.request.form['token']:
+            return f(*args, **kwargs)
+        abort(403)
+
+
+def convert_html_to_markdown(text):
+    p = subprocess.Popen(['pandoc', '-f', 'html', '-t', 'markdown'],
+                         stdin=subprocess.PIPE)
+    # ugh python text encoding problems
+    output = p.communicate(text.encode('utf-8'))
+    return output
+
+
+def convert_post_to_slack_message(post, clazz, class_id):
+    latest = post['history'][0]
+    user = clazz.get_users(['hqfm21ju8ek3vo'])[0]
+    content = convert_html_to_markdown(latest['content'])
+    slack_attachment = {
+        'fallback': 'Piazza post @{}'.format(post['nr']),
+        'pretext': 'Piazza post @{}'.format(post['nr']),
+        'author_name': user['name'] + (' (anonymous)' if latest['anon'] == 'stud' else ''),
+        # how do we convert get the actual image given by user['photo']
+        # 'author_icon': user['photo'],
+        'title': latest['subject'],
+        'title_link': 'https://www.piazza.com/{}?cid={}'.format(class_id, post['nr']),
+        'text': content,
+        'fields': [{'title': 'created', 'value': latest['created'], 'short': True},
+                   {'title': 'views', 'value': post['unique_views'], 'short': True},
+                   {'title': 'tags', 'value': ', '.join(post['folders']) if post['folders'] else '(none)', 'short': False}
+        ]
+    }
+    return flask.jsonify(attachments=[slack_attachment])
+
+
+@app.route('/slack/<class_id>', methods=['POST'])
+def get_post_for_slack(class_id):
+    clazz = PIAZZA.network(class_id)
+    post_id = flask.request.form['text']
+    post = clazz.get_post(post_id)
+    return convert_post_to_slack_message(post, clazz, class_id)
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 80))
+    app.run(host='0.0.0.0', port=port, threaded=True, debug=True)

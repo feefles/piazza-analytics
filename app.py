@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 import config
 from piazza_api import Piazza
 import json, os
+import requests
 
 app = Flask(__name__)
 
@@ -89,6 +90,22 @@ def get_person(class_id, post_id):
                     d['tag_endorse_student'].append(person['name'])
     return json.dumps(d)
 
+
+@app.route('/slack_hook')
+@crossdomain(origin='*')
+def return_body():
+    r = request.args
+    if r['token']!= config.slack_token:
+        return 'Not correct token!'
+    p = Piazza()
+    p.user_login(email=username, password=password)
+    cis121 = p.network(config.cis121_piazza)
+
+    post = cis121.get_post(r['text'])
+    body = post['history'][-1]['content']
+    payload = {"text": body}
+    return jsonify(payload)
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 80))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, threaded=True)

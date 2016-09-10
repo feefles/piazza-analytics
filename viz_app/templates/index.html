@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
 <meta charset="utf-8">
-<title>Piazza Visualizer</title>
+<title>Piazza Explorer</title>
 
 <!-- meta -->
 <meta name="description" content="">
@@ -42,7 +42,8 @@ body {
 	height: 100%;
 	position: absolute;
 	left: 0;
-	top: 0;
+	top: 20px;
+	margin-top: 50px;
 	z-index: 999;
 }
 
@@ -97,7 +98,7 @@ h1 {
 
 		cy.elements().qtip({
 			content: function(){ 
-				return this.data().postContent; 
+				return "question: " + this.data().postContent + "<br><br>answer: " + this.data().postAnswer ; 
 			},
 			position: {
 				my: 'top center',
@@ -116,7 +117,14 @@ h1 {
 
 </head>
 <body>
-<h1>cytoscape-dagre demo</h1>
+<h1>CIS 121 Piazza Graph</h1>
+<div id="content">
+	<form method="post" action="{{ url_for('returnGraphDataHW') }}">
+      <label for="homework">Which Homework to Viz?</label>
+      <input type="text" name="homework" /><br />
+      <input type="submit" />
+    </form>
+</div>
 <div id="cy"></div>
 </body>
 </html>

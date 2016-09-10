@@ -41,6 +41,8 @@ class Post(object):
             token_unescaped = html_parser.unescape(token)
             if '@' in token_unescaped:
                 link_number = ''.join([str(s) for s in str(token_unescaped) if s.isdigit()])
+                if link_number == '':
+                    continue
                 self.outlinks.append(link_number)
                 # for debugging before we make the whole graph
                 if link_number in all_posts:

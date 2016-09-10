@@ -25,9 +25,12 @@
 <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
 <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
 
-
 <script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js"></script>
 <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.1.2/cytoscape-dagre.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
+<link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.2.5/cytoscape-qtip.js"></script>
 <style>
 body {
 	font-family: helvetica;
@@ -92,9 +95,24 @@ h1 {
 			},
 		});
 
+		cy.elements().qtip({
+			content: function(){ 
+				return this.data().postContent; 
+			},
+			position: {
+				my: 'top center',
+				at: 'bottom center'
+			},
+			style: {
+				classes: 'qtip-bootstrap',
+				tip: {
+					width: 16,
+					height: 8
+				}
+			}
+		});
 	});
 </script>
-
 
 </head>
 <body>

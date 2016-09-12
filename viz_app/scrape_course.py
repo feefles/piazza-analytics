@@ -28,9 +28,9 @@ class Post(object):
     def get_answers(self, post):
         for child in post['children']:
             if child['type'] == 'i_answer':
-                self.post_instructor_answer = child['history'][-1]['content']
+                self.post_instructor_answer = child['history'][0]['content']
             if child['type'] == 's_answer':
-                self.post_student_answer = child['history'][-1]['content']
+                self.post_student_answer = child['history'][0]['content']
 
     def output(self, file):
         pass
